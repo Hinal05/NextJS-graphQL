@@ -1,0 +1,25 @@
+setup drupal and nextjs project.
+
+Drupal
+Install modules graphql, simple oauth2, pathauto (alias), redirect, graphql_compose_preview, graphql_compose_fragments, graphql_compose, svg_image, drush, admin_toolbar
+
+Steps:
+- Install and enable all that modules which is mention in top.
+- Go to configuration/Web services/graphql/Explorer
+  - Modify the query as per you requirement. (copy that query and paste that in chatgpt, his provide the code to show that data in listing.)
+  - If content or any fields are not visible in the Explorer then follow next steps.
+- Go to configuration/Web services/graphql Compose
+  - Go to specific tab which you need to show in explorer. (Ex. Article content: Enable all the checkboxes inside the content/Article (the custom fields also there if you want to show that.))
+
+nextjs
+Install modules graphql-request, tailwindcss, next-drupal
+
+Steps:
+- Once you get the code, create page in nextjs and paste that code there and run the page. The data will be visible. If it shows some error then resolve it.
+- You need to create couple of files for listing and detail page site.
+  - lib/queries/queries.ts, lib/graphql-client.ts, .env.local
+- This files use for auth detail and get, post services.
+
+Link site urls:
+Drupal: https://github.com/Hinal05/Drupal-graphQL
+NextJS: https://github.com/Hinal05/NextJS-graphQL

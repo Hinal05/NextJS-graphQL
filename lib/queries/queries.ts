@@ -1,25 +1,40 @@
 import { gql } from 'graphql-request';
 
 // lib/queries.ts
-export const GET_ARTICLES = `
-  query MyQuery {
-    nodeArticles(first: 10) {
-      nodes {
-        body {
-          value
-        }
-        image {
-          url
-        }
-        title
-        path
-        id
-        tags {
-          ... on TermTag {
-            id
+export const GET_ARTICLES = gql`
+  query GetArticles($first: Int!, $after: Cursor) {
+    nodeArticles(first: $first, after: $after, sortKey: CREATED_AT, reverse: true) {
+      edges {
+        cursor
+        node {
+          id
+          body {
+            value
+          }
+          image {
+            url
+            title
+            alt
+          }
+          path
+          title
+          tags {
+            ... on TermTag {
+              id
+              name
+            }
+          }
+          status
+          author {
             name
           }
         }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
       }
     }
   }
@@ -45,6 +60,9 @@ export const GET_ARTICLE_DETAIL = gql`
                 id
                 name
               }
+            }
+            author {
+              name
             }
             body {
               summary
