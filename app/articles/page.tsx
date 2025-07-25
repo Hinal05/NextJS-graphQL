@@ -1,5 +1,6 @@
 import { graphQLClient } from '@/lib/graphql-client';
 import { GET_ARTICLES } from '@/lib/queries/queries';
+import { buildBreadcrumbs } from '@/lib/utility/buildBreadcrumbs';
 import Link from 'next/link';
 
 type SearchParams = {
@@ -14,8 +15,21 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Sea
   const edges = data.nodeArticles.edges.filter(({ node }: any) => node.status === true);
   const pageInfo = data.nodeArticles.pageInfo;
 
+  const breadcrumbs = buildBreadcrumbs('/articles');
+
   return (
     <div className="p-6">
+      <nav className="text-sm text-gray-600 mb-4">
+        {breadcrumbs.map((crumb, i) => (
+          <span key={i}>
+            <Link href={crumb.href} className="text-blue-600 hover:underline">
+              {crumb.label}
+            </Link>
+            {i < breadcrumbs.length - 1 && <span className="mx-1">/</span>}
+          </span>
+        ))}
+      </nav>
+
       <h1 className="text-3xl font-bold mb-6">All Articles</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

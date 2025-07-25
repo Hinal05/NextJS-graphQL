@@ -2,6 +2,8 @@
 import { graphQLClient } from '@/lib/graphql-client';
 import { GET_ARTICLE_DETAIL } from '@/lib/queries/queries';
 import { notFound } from "next/navigation";
+import { buildBreadcrumbs } from '@/lib/utility/buildBreadcrumbs';
+import Link from 'next/link';
 
 type Params = { slug: string[] };
 
@@ -14,8 +16,21 @@ export default async function ArticleDetailPage({ params }: { params: Params }) 
     notFound();
   }
 
+  const breadcrumbs = buildBreadcrumbs(path);
+
   return (
     <div className="max-w-3xl mx-auto p-6">
+      {/* Breadcrumbs */}
+      <nav className="text-sm text-gray-600 mb-4">
+        {breadcrumbs.map((crumb, i) => (
+          <span key={i}>
+            <Link href={crumb.href} className="text-blue-600 hover:underline">
+              {crumb.label}
+            </Link>
+            {i < breadcrumbs.length - 1 && <span className="mx-1">/</span>}
+          </span>
+        ))}
+      </nav>
       <h1 className="text-3xl font-bold mb-4">{entity.title}</h1>
       <p className="text-sm text-gray-500 mb-2">By {entity.author?.name}</p>
 
