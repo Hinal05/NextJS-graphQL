@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { User, LogOut } from "lucide-react";
 
@@ -19,12 +19,20 @@ export default function LoginPage() {
       username,
       password,
     });
-    console.log(res, 'res');
 
     if (!res?.ok) {
       setError("Invalid credentials. Please try again.");
     }
   };
+
+
+  useEffect(() => {
+    if (session) {
+      console.log("✅ Logged in session:", session);
+      console.log("✅ CSRF Token stored:", session.csrfToken);
+    }
+  }, [session]);
+
 
   if (session) {
     return (

@@ -1,7 +1,8 @@
-import NextAuth from 'next-auth';
+// lib/auth.ts
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Drupal Credentials',
@@ -38,16 +39,18 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user?.csrf) token.csrfToken = user.csrf;
+      if (user?.id) token.uid = user.id;
+      if (user?.name) token.name = user.name;
       return token;
     },
     async session({ session, token }) {
       if (token?.csrfToken) session.csrfToken = token.csrfToken;
+      if (token?.uid) session.uid = token.uid;
+      if (token?.name) session.user.name = token.name;
       return session;
     },
   },
   pages: {
     signIn: '/login',
   },
-});
-
-export { handler as GET, handler as POST };
+};
