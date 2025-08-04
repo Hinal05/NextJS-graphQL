@@ -12,6 +12,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError("");
 
     const res = await signIn("credentials", {
@@ -25,14 +26,13 @@ export default function LoginPage() {
     }
   };
 
-
   useEffect(() => {
     if (session) {
       console.log("✅ Logged in session:", session);
-      console.log("✅ CSRF Token stored:", session.csrfToken);
+      console.log("✅ UUID:", session.user?.id);
+      console.log("✅ CSRF Token stored:", session.user?.csrfToken);
     }
   }, [session]);
-
 
   if (session) {
     return (

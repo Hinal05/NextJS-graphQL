@@ -12,7 +12,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_DRUPAL_BASE_URL}/user/login?_format=json`, {
+          const loginRes = await fetch(`${process.env.NEXT_PUBLIC_DRUPAL_BASE_URL}/user/login?_format=json`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -21,15 +21,34 @@ export const authOptions: NextAuthOptions = {
             }),
           });
 
-          const data = await res.json();
-          if (!res.ok || !data?.current_user) return null;
+          const loginData = await loginRes.json();
+          if (!loginRes.ok || !loginData?.current_user) return null;
+
+          const uid = loginData.current_user.uid;
+          const csrf = loginData.csrf_token;
+
+          const userDetailRes = await fetch(
+            `${process.env.NEXT_PUBLIC_DRUPAL_BASE_URL}/jsonapi/user/user?filter[uid]=${uid}`,
+            {
+              headers: {
+                'Content-Type': 'application/vnd.api+json',
+                'Accept': 'application/vnd.api+json',
+              },
+            }
+          );
+
+          const userDetail = await userDetailRes.json();
+          const uuid = userDetail?.data?.[0]?.id;
+          console.log("🔑 UUID from JSON:API:", uuid);
 
           return {
-            id: data.current_user.uid,
-            name: data.current_user.name,
-            csrf: data.csrf_token,
+            id: uuid,
+            uid,
+            name: loginData.current_user.name,
+            csrfToken: csrf,
           };
-        } catch {
+        } catch (err) {
+          console.error('Authorize error:', err);
           return null;
         }
       },
@@ -38,15 +57,17 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
-      if (user?.csrf) token.csrfToken = user.csrf;
-      if (user?.id) token.uid = user.id;
-      if (user?.name) token.name = user.name;
+      if (user) {
+        console.log("🔁 JWT callback user:", user);
+        token.id = user.id;
+        token.name = user.name;
+        token.csrfToken = user.csrfToken;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (token?.csrfToken) session.csrfToken = token.csrfToken;
-      if (token?.uid) session.uid = token.uid;
-      if (token?.name) session.user.name = token.name;
+      session.user.id = token.id;
+      session.user.csrfToken = token.csrfToken;
       return session;
     },
   },
